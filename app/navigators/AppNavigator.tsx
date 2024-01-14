@@ -13,7 +13,7 @@ import {
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
 import React from "react"
-import { useColorScheme } from "react-native"
+import { useColorScheme, Image } from "react-native"
 import * as Screens from "app/screens"
 import Config from "../config"
 import { useStores } from "../models"
@@ -63,7 +63,7 @@ const AppStack = observer(function AppStack() {
 
   return (
     <Stack.Navigator
-      screenOptions={{ headerShown: false, navigationBarColor: colors.background }}
+      screenOptions={{ headerShown: true, navigationBarColor: colors.background }}
       initialRouteName={isAuthenticated ? "Welcome" : "Login"}
     >
       {/* {isAuthenticated ? (
@@ -78,7 +78,18 @@ const AppStack = observer(function AppStack() {
         </>
       )} */}
 
-      <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+      <Stack.Screen
+        name="Welcome"
+        component={Screens.WelcomeScreen}
+        options={{
+          headerStyle: {
+            backgroundColor: colors.palette.neutral200,
+          },
+          headerTitle: () => {
+            return <Image source={require("../assets/svg/logo.png")} />
+          },
+        }}
+      />
 
       {/** 🔥 Your screens go here */}
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}

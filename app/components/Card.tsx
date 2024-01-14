@@ -13,6 +13,7 @@ interface ICard {
 export const Card = ({ title, points, data }: ICard) => {
   const [formatDate, setFormatDate] = useState("")
   const [exercises, setExercises] = useState("")
+  // transform date
   useEffect(() => {
     if (data) {
       const inputDate = data.history[0].date_time

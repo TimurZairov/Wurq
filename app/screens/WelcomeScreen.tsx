@@ -7,7 +7,6 @@ import { colors, spacing } from "../theme"
 import { LineChartComponent } from "app/components/LineChart"
 import { Button, Card } from "app/components"
 import { Input } from "app/components/Input"
-import { set } from "date-fns"
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
