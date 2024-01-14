@@ -2,7 +2,7 @@
 
 const palette = {
   neutral100: "#FFFFFF",
-  neutral200: "#F4F2F1",
+  neutral200: "#333F48",
   neutral300: "#D7CEC9",
   neutral400: "#B6ACA6",
   neutral500: "#978F8A",
@@ -10,6 +10,9 @@ const palette = {
   neutral700: "#3C3836",
   neutral800: "#191015",
   neutral900: "#000000",
+  lineChartBackground: "#222B31",
+  points: "#A8FF89",
+  textGray: "#7B7B7B",
 
   primary100: "#F4E0D9",
   primary200: "#E8C1B4",

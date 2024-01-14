@@ -1,105 +1,99 @@
 import { observer } from "mobx-react-lite"
-import React, { FC } from "react"
-import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
-import { Button, Text } from "app/components"
-import { isRTL } from "../i18n"
-import { useStores } from "../models"
+import React, { FC, useState, useEffect } from "react"
+import { SafeAreaView, ScrollView, View, ViewStyle } from "react-native"
+
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
-import { useHeader } from "../utils/useHeader"
-import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
-
-const welcomeLogo = require("../../assets/images/logo.png")
-const welcomeFace = require("../../assets/images/welcome-face.png")
+import { LineChartComponent } from "app/components/LineChart"
+import { Button, Card } from "app/components"
+import { Input } from "app/components/Input"
+import { set } from "date-fns"
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
 export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(_props) {
-  const { navigation } = _props
-  const {
-    authenticationStore: { logout },
-  } = useStores()
-
-  function goNext() {
-    navigation.navigate("Demo", { screen: "DemoShowroom", params: {} })
+  const [text, setText] = useState("")
+  const [pointsInput, setPointsInput] = useState("")
+  const [title, setTitle] = useState("WOD Newton")
+  const [points, setPoints] = useState("189")
+  // set to card Points ant Title
+  const submitHandler = () => {
+    setTitle(text)
+    setPoints(pointsInput)
   }
 
-  useHeader(
-    {
-      rightTx: "common.logOut",
-      onRightPress: logout,
-    },
-    [logout],
-  )
+  const [data, setData] = useState(null)
+  // get data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const apiUrl = "https://awqgdt2ss8.execute-api.us-east-1.amazonaws.com/Prod/history"
 
-  const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
+        const response = await fetch(apiUrl)
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok")
+        }
+
+        const result = await response.json()
+
+        setData(result)
+      } catch (error) {
+        console.error("Error fetching data:", error)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   return (
-    <View style={$container}>
-      <View style={$topContainer}>
-        <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
-        <Text
-          testID="welcome-heading"
-          style={$welcomeHeading}
-          tx="welcomeScreen.readyForLaunch"
-          preset="heading"
-        />
-        <Text tx="welcomeScreen.exciting" preset="subheading" />
-        <Image style={$welcomeFace} source={welcomeFace} resizeMode="contain" />
-      </View>
-
-      <View style={[$bottomContainer, $bottomContainerInsets]}>
-        <Text tx="welcomeScreen.postscript" size="md" />
-
-        <Button
-          testID="next-screen-button"
-          preset="reversed"
-          tx="welcomeScreen.letsGo"
-          onPress={goNext}
-        />
-      </View>
-    </View>
+    <SafeAreaView style={$saveArea}>
+      <ScrollView style={$scroll}>
+        <View style={$container}>
+          {/* LineChart */}
+          <LineChartComponent />
+          {/* Card */}
+          <Card title={title} points={points} data={data} />
+          {/* Inputs */}
+          <View style={$footerInput}>
+            <Input
+              isNumber={"numeric"}
+              title={"Points"}
+              placeholder={"number"}
+              setPointsInput={setPointsInput}
+            />
+            <Input title={"Name "} placeholder={"string"} setText={setText} />
+            {/* Button */}
+            <Button style={$button} onPress={submitHandler}>
+              Submit
+            </Button>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   )
 })
 
-const $container: ViewStyle = {
+const $saveArea: ViewStyle = {
   flex: 1,
   backgroundColor: colors.background,
 }
 
-const $topContainer: ViewStyle = {
-  flexShrink: 1,
-  flexGrow: 1,
-  flexBasis: "57%",
-  justifyContent: "center",
-  paddingHorizontal: spacing.lg,
+const $container: ViewStyle = {
+  paddingHorizontal: spacing.sm,
 }
 
-const $bottomContainer: ViewStyle = {
-  flexShrink: 1,
-  flexGrow: 0,
-  flexBasis: "43%",
-  backgroundColor: colors.palette.neutral100,
-  borderTopLeftRadius: 16,
-  borderTopRightRadius: 16,
-  paddingHorizontal: spacing.lg,
-  justifyContent: "space-around",
+const $scroll: ViewStyle = {
+  flex: 1,
 }
-const $welcomeLogo: ImageStyle = {
-  height: 88,
+
+const $footerInput: ViewStyle = {
   width: "100%",
-  marginBottom: spacing.xxl,
+  justifyContent: "center",
+  alignItems: "center",
 }
 
-const $welcomeFace: ImageStyle = {
-  height: 169,
-  width: 269,
-  position: "absolute",
-  bottom: -47,
-  right: -80,
-  transform: [{ scaleX: isRTL ? -1 : 1 }],
-}
-
-const $welcomeHeading: TextStyle = {
-  marginBottom: spacing.md,
+const $button: ViewStyle = {
+  width: "50%",
+  marginTop: spacing.md,
 }

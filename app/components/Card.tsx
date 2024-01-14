@@ -1,298 +1,154 @@
-import React, { ComponentType, Fragment, ReactElement } from "react"
-import {
-  StyleProp,
-  TextStyle,
-  TouchableOpacity,
-  TouchableOpacityProps,
-  View,
-  ViewProps,
-  ViewStyle,
-} from "react-native"
-import { colors, spacing } from "../theme"
-import { Text, TextProps } from "./Text"
+import { spacing } from "app/theme"
+import { colors } from "app/theme/colors"
+import React, { useEffect, useState } from "react"
+import { View, Text, ViewStyle, TextStyle } from "react-native"
+import { Hart } from "app/assets/svg/Hart"
 
-type Presets = keyof typeof $containerPresets
-
-interface CardProps extends TouchableOpacityProps {
-  /**
-   * One of the different types of text presets.
-   */
-  preset?: Presets
-  /**
-   * How the content should be aligned vertically. This is especially (but not exclusively) useful
-   * when the card is a fixed height but the content is dynamic.
-   *
-   * `top` (default) - aligns all content to the top.
-   * `center` - aligns all content to the center.
-   * `space-between` - spreads out the content evenly.
-   * `force-footer-bottom` - aligns all content to the top, but forces the footer to the bottom.
-   */
-  verticalAlignment?: "top" | "center" | "space-between" | "force-footer-bottom"
-  /**
-   * Custom component added to the left of the card body.
-   */
-  LeftComponent?: ReactElement
-  /**
-   * Custom component added to the right of the card body.
-   */
-  RightComponent?: ReactElement
-  /**
-   * The heading text to display if not using `headingTx`.
-   */
-  heading?: TextProps["text"]
-  /**
-   * Heading text which is looked up via i18n.
-   */
-  headingTx?: TextProps["tx"]
-  /**
-   * Optional heading options to pass to i18n. Useful for interpolation
-   * as well as explicitly setting locale or translation fallbacks.
-   */
-  headingTxOptions?: TextProps["txOptions"]
-  /**
-   * Style overrides for heading text.
-   */
-  headingStyle?: StyleProp<TextStyle>
-  /**
-   * Pass any additional props directly to the heading Text component.
-   */
-  HeadingTextProps?: TextProps
-  /**
-   * Custom heading component.
-   * Overrides all other `heading*` props.
-   */
-  HeadingComponent?: ReactElement
-  /**
-   * The content text to display if not using `contentTx`.
-   */
-  content?: TextProps["text"]
-  /**
-   * Content text which is looked up via i18n.
-   */
-  contentTx?: TextProps["tx"]
-  /**
-   * Optional content options to pass to i18n. Useful for interpolation
-   * as well as explicitly setting locale or translation fallbacks.
-   */
-  contentTxOptions?: TextProps["txOptions"]
-  /**
-   * Style overrides for content text.
-   */
-  contentStyle?: StyleProp<TextStyle>
-  /**
-   * Pass any additional props directly to the content Text component.
-   */
-  ContentTextProps?: TextProps
-  /**
-   * Custom content component.
-   * Overrides all other `content*` props.
-   */
-  ContentComponent?: ReactElement
-  /**
-   * The footer text to display if not using `footerTx`.
-   */
-  footer?: TextProps["text"]
-  /**
-   * Footer text which is looked up via i18n.
-   */
-  footerTx?: TextProps["tx"]
-  /**
-   * Optional footer options to pass to i18n. Useful for interpolation
-   * as well as explicitly setting locale or translation fallbacks.
-   */
-  footerTxOptions?: TextProps["txOptions"]
-  /**
-   * Style overrides for footer text.
-   */
-  footerStyle?: StyleProp<TextStyle>
-  /**
-   * Pass any additional props directly to the footer Text component.
-   */
-  FooterTextProps?: TextProps
-  /**
-   * Custom footer component.
-   * Overrides all other `footer*` props.
-   */
-  FooterComponent?: ReactElement
+interface ICard {
+  title: string
+  points: string
+  data: any
 }
 
-/**
- * Cards are useful for displaying related information in a contained way.
- * If a ListItem displays content horizontally, a Card can be used to display content vertically.
- *
- * - [Documentation and Examples](https://github.com/infinitered/ignite/blob/master/docs/Components-Card.md)
- */
-export function Card(props: CardProps) {
-  const {
-    content,
-    contentTx,
-    contentTxOptions,
-    footer,
-    footerTx,
-    footerTxOptions,
-    heading,
-    headingTx,
-    headingTxOptions,
-    ContentComponent,
-    HeadingComponent,
-    FooterComponent,
-    LeftComponent,
-    RightComponent,
-    verticalAlignment = "top",
-    style: $containerStyleOverride,
-    contentStyle: $contentStyleOverride,
-    headingStyle: $headingStyleOverride,
-    footerStyle: $footerStyleOverride,
-    ContentTextProps,
-    HeadingTextProps,
-    FooterTextProps,
-    ...WrapperProps
-  } = props
+export const Card = ({ title, points, data }: ICard) => {
+  const [formatDate, setFormatDate] = useState("")
+  const [exercises, setExercises] = useState("")
+  useEffect(() => {
+    if (data) {
+      const inputDate = data.history[0].date_time
+      const parsedDate = new Date(inputDate)
 
-  const preset: Presets = props.preset ?? "default"
-  const isPressable = !!WrapperProps.onPress
-  const isHeadingPresent = !!(HeadingComponent || heading || headingTx)
-  const isContentPresent = !!(ContentComponent || content || contentTx)
-  const isFooterPresent = !!(FooterComponent || footer || footerTx)
+      const month = String(parsedDate.getMonth() + 1).padStart(2, "0")
+      const day = String(parsedDate.getDate()).padStart(2, "0")
+      const year = parsedDate.getFullYear()
 
-  const Wrapper = (isPressable ? TouchableOpacity : View) as ComponentType<
-    TouchableOpacityProps | ViewProps
-  >
-  const HeaderContentWrapper = verticalAlignment === "force-footer-bottom" ? View : Fragment
-
-  const $containerStyle = [$containerPresets[preset], $containerStyleOverride]
-  const $headingStyle = [
-    $headingPresets[preset],
-    (isFooterPresent || isContentPresent) && { marginBottom: spacing.xxxs },
-    $headingStyleOverride,
-    HeadingTextProps?.style,
-  ]
-  const $contentStyle = [
-    $contentPresets[preset],
-    isHeadingPresent && { marginTop: spacing.xxxs },
-    isFooterPresent && { marginBottom: spacing.xxxs },
-    $contentStyleOverride,
-    ContentTextProps?.style,
-  ]
-  const $footerStyle = [
-    $footerPresets[preset],
-    (isHeadingPresent || isContentPresent) && { marginTop: spacing.xxxs },
-    $footerStyleOverride,
-    FooterTextProps?.style,
-  ]
-  const $alignmentWrapperStyle = [
-    $alignmentWrapper,
-    { justifyContent: $alignmentWrapperFlexOptions[verticalAlignment] },
-    LeftComponent && { marginStart: spacing.md },
-    RightComponent && { marginEnd: spacing.md },
-  ]
+      const formattedDate = `${month}/${day}/${year}`
+      setFormatDate(formattedDate)
+      setExercises(data.history[0].exercises)
+    }
+  }, [data])
 
   return (
-    <Wrapper
-      style={$containerStyle}
-      activeOpacity={0.8}
-      accessibilityRole={isPressable ? "button" : undefined}
-      {...WrapperProps}
-    >
-      {LeftComponent}
+    <View style={$cardContainer}>
+      <View style={$leftInfo}>
+        {/* Header Card */}
+        <View style={$header}>
+          <View>
+            {data && <Text style={$date}>{formatDate}</Text>}
 
-      <View style={$alignmentWrapperStyle}>
-        <HeaderContentWrapper>
-          {HeadingComponent ||
-            (isHeadingPresent && (
-              <Text
-                weight="bold"
-                text={heading}
-                tx={headingTx}
-                txOptions={headingTxOptions}
-                {...HeadingTextProps}
-                style={$headingStyle}
-              />
-            ))}
-
-          {ContentComponent ||
-            (isContentPresent && (
-              <Text
-                weight="normal"
-                text={content}
-                tx={contentTx}
-                txOptions={contentTxOptions}
-                {...ContentTextProps}
-                style={$contentStyle}
-              />
-            ))}
-        </HeaderContentWrapper>
-
-        {FooterComponent ||
-          (isFooterPresent && (
-            <Text
-              weight="normal"
-              size="xs"
-              text={footer}
-              tx={footerTx}
-              txOptions={footerTxOptions}
-              {...FooterTextProps}
-              style={$footerStyle}
-            />
-          ))}
+            <Text style={$subTitle}>{title}</Text>
+          </View>
+          <Hart />
+        </View>
+        {/* Numbers */}
+        <View style={$numbers}>
+          <Text style={$timeText}>Time:</Text>
+          <Text style={$time}>12:53</Text>
+          <Text style={$timeText}>Rest:</Text>
+          <Text style={$time}>
+            0:37<Text style={$percents}> | 5%</Text>
+          </Text>
+          <Text style={$num}>167</Text>
+        </View>
+        {/* Footer Card */}
+        <View style={$footer}>
+          <Text style={[$timeText, $whiteText]}>{exercises}</Text>
+          {/* <Text style={[$timeText, $whiteText]}>40 Kb Swings (53/35)</Text>
+          <Text style={[$timeText, $whiteText]}>30 Ab-Mat</Text>
+          <Text style={[$timeText, $whiteText]}>20 Barbell Thruster 95/65</Text>
+          <Text style={[$timeText, $whiteText]}>10 Barbell Hang Clean 95/65</Text> */}
+        </View>
       </View>
-
-      {RightComponent}
-    </Wrapper>
+      <View style={$rightInfo}>
+        <Text style={$points}>{`+${points}`}</Text>
+        <Text style={$total}>Total Points</Text>
+      </View>
+    </View>
   )
 }
 
-const $containerBase: ViewStyle = {
-  borderRadius: spacing.md,
-  padding: spacing.xs,
-  borderWidth: 1,
-  shadowColor: colors.palette.neutral800,
-  shadowOffset: { width: 0, height: 12 },
-  shadowOpacity: 0.08,
-  shadowRadius: 12.81,
-  elevation: 16,
-  minHeight: 96,
+const $cardContainer: ViewStyle = {
+  width: "100%",
+  height: 201,
+  backgroundColor: colors.palette.lineChartBackground,
+  borderRadius: spacing.xs,
   flexDirection: "row",
+  overflow: "hidden",
 }
 
-const $alignmentWrapper: ViewStyle = {
-  flex: 1,
-  alignSelf: "stretch",
+const $leftInfo: ViewStyle = {
+  width: "75%",
+  padding: spacing.sm,
 }
 
-const $alignmentWrapperFlexOptions = {
-  top: "flex-start",
-  center: "center",
-  "space-between": "space-between",
-  "force-footer-bottom": "space-between",
-} as const
-
-const $containerPresets = {
-  default: [
-    $containerBase,
-    {
-      backgroundColor: colors.palette.neutral100,
-      borderColor: colors.palette.neutral300,
-    },
-  ] as StyleProp<ViewStyle>,
-
-  reversed: [
-    $containerBase,
-    { backgroundColor: colors.palette.neutral800, borderColor: colors.palette.neutral500 },
-  ] as StyleProp<ViewStyle>,
+const $header: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
 }
 
-const $headingPresets: Record<Presets, TextStyle> = {
-  default: {},
-  reversed: { color: colors.palette.neutral100 },
+const $rightInfo: ViewStyle = {
+  width: "25%",
+  backgroundColor: colors.palette.neutral900,
+  justifyContent: "center",
+  alignItems: "center",
 }
 
-const $contentPresets: Record<Presets, TextStyle> = {
-  default: {},
-  reversed: { color: colors.palette.neutral100 },
+const $points: TextStyle = {
+  color: colors.palette.points,
+  fontSize: spacing.lg,
+  fontWeight: "800",
 }
 
-const $footerPresets: Record<Presets, TextStyle> = {
-  default: {},
-  reversed: { color: colors.palette.neutral100 },
+const $total: TextStyle = {
+  color: colors.palette.textGray,
+  fontSize: spacing.sm,
+  fontWeight: "800",
+  margin: spacing.xs,
+}
+
+const $date: TextStyle = {
+  color: colors.palette.textGray,
+  fontSize: spacing.sm,
+  fontWeight: "800",
+}
+
+const $subTitle: TextStyle = {
+  color: "white",
+  fontSize: spacing.md,
+  fontWeight: "800",
+}
+
+const $numbers: ViewStyle = {
+  flexDirection: "row",
+  marginTop: spacing.sm,
+  alignItems: "center",
+}
+
+const $timeText: TextStyle = {
+  color: colors.palette.textGray,
+}
+
+const $time: TextStyle = {
+  color: "white",
+  marginLeft: spacing.xxs,
+  fontSize: spacing.md,
+  fontWeight: "900",
+}
+
+const $percents: TextStyle = {
+  fontWeight: "300",
+}
+
+const $num: TextStyle = {
+  marginLeft: "auto",
+  color: "white",
+  fontSize: spacing.md,
+}
+
+const $footer: ViewStyle = {
+  marginTop: "auto",
+}
+
+const $whiteText: TextStyle = {
+  color: "white",
 }
