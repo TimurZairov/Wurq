@@ -22,7 +22,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     setPoints(pointsInput)
   }
 
-  const [data, setData] = useState<never | []>([])
+  const [data, setData] = useState<any | object>({})
 
   // get data
   useEffect(() => {
@@ -35,6 +35,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
         if (res.kind !== "ok") {
           throw new Error("Network response was not ok")
         }
+
         setData(res.rawData)
       } catch (error) {
         console.error("Error fetching data:", error)
@@ -49,7 +50,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
       <ScrollView style={$scroll}>
         <View style={$container}>
           {/* LineChart */}
-          {data ? <LineChartComponent pointsPerWood={data} /> : null}
+          {data ? <LineChartComponent pointsPerWood={data?.points_per_wod} /> : null}
 
           {/* Card */}
           {data ? <Card title={title} points={points} data={data} /> : null}

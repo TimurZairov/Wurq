@@ -14,7 +14,6 @@ export const Card = ({ title, points, data }: ICard) => {
   const [formatDate, setFormatDate] = useState("")
   const [exercises, setExercises] = useState("")
 
-  console.log(data)
   // transform date
   useEffect(() => {
     if (data && data?.history) {

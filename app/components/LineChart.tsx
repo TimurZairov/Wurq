@@ -5,23 +5,21 @@ import { View, Text, ViewStyle, TextStyle } from "react-native"
 
 import { Circle, G, Line, Svg, Text as SvgText } from "react-native-svg"
 
-export const LineChartComponent: React.FC = ({ pointsPerWood = [] }: any) => {
-  const containeHeigth = 255
+interface ILineChartProps {
+  pointsPerWood: [] | undefined
+}
 
-  const markerData = [
-    { marker: 1 },
-    { marker: 2 },
-    { marker: 3 },
-    { marker: 4 },
-    { marker: 5 },
-    { marker: 6 },
-    { marker: 7 },
-    { marker: 8 },
-    { marker: 9 },
-  ]
+export const LineChartComponent: React.ElementType = ({ pointsPerWood = [] }: ILineChartProps) => {
+  const containeHeigth = 255
 
   const data = [{ marker: 20 }, { marker: 10 }, { marker: 0 }, { marker: -10 }, { marker: -20 }]
 
+  const maxY = 20
+  const zeroMarker = containeHeigth / 2
+  const paddingMarker = 7
+  const margin = 10
+
+  // x and y axis
   const renderXaxis = () => {
     return (
       <G key="x axis">
@@ -30,9 +28,11 @@ export const LineChartComponent: React.FC = ({ pointsPerWood = [] }: any) => {
       </G>
     )
   }
+
+  // horizontal line
   const renderHorizontalLine = () => {
-    return markerData.map((_, index) => {
-      const x1 = (containeHeigth / markerData.length) * index
+    return pointsPerWood.map((_, index) => {
+      const x1 = (containeHeigth / pointsPerWood.length) * index
       return (
         <G key={`marker ${index}`}>
           {index !== 0 ? (
@@ -42,7 +42,7 @@ export const LineChartComponent: React.FC = ({ pointsPerWood = [] }: any) => {
               x2={366}
               y1={x1}
               y2={x1}
-              strokeWidth={index !== 5 ? "0.5" : "2"}
+              strokeWidth={index !== 4 ? "0.5" : "2"}
               strokeDasharray="4 4"
             />
           ) : null}
@@ -50,52 +50,83 @@ export const LineChartComponent: React.FC = ({ pointsPerWood = [] }: any) => {
       )
     })
   }
-
+  // markers
   const renderMarker = () => {
     return data.map((item, index) => {
-      const x = (containeHeigth / data.length) * index
-      // console.log(x)
+      const y = ((containeHeigth - paddingMarker) / (data.length - 1)) * index
 
       return (
-        <G key={`marker ${index}`}>
-          <SvgText fill={"white"} y={x + 45} textAnchor="start">
-            {item.marker}
-          </SvgText>
-        </G>
+        <SvgText
+          key={index}
+          fill={"white"}
+          y={y - index + margin}
+          x={10}
+          fontWeight={"400"}
+          textAnchor="middle"
+        >
+          {item.marker}
+        </SvgText>
       )
     })
   }
-
+  // LineChart
   const chartRender = () => {
-    return (
-      <G key={"chart"}>
-        <Circle r={5} y={50} x={60} fill={colors.palette.points} />
-        <Line x1={60} x2={110} y1={50} y2={170} stroke={"white"} strokeWidth={"2"} />
-        <Circle r={5} y={170} x={110} fill={"white"} />
-        <Circle r={5} y={180} x={130} fill={"white"} />
-        <Line x1={110} x2={130} y1={170} y2={180} stroke={"white"} strokeWidth={"2"} />
-        <Circle r={5} y={80} x={180} fill={colors.palette.points} />
-        <Line x1={130} x2={180} y1={180} y2={80} stroke={"white"} strokeWidth={"2"} />
-        <Circle r={5} y={70} x={200} fill={colors.palette.points} />
-        <Line x1={180} x2={200} y1={80} y2={70} stroke={"white"} strokeWidth={"2"} />
-        <Circle r={5} y={100} x={230} fill={colors.palette.points} />
-        <Line x1={200} x2={230} y1={70} y2={100} stroke={"white"} strokeWidth={"2"} />
-        <Circle r={5} y={160} x={260} fill={"white"} />
-        <Line x1={230} x2={260} y1={100} y2={160} stroke={"white"} strokeWidth={"2"} />
-        <Circle r={5} y={70} x={320} fill={colors.palette.points} />
-        <Line x1={260} x2={320} y1={160} y2={70} stroke={"white"} strokeWidth={"2"} />
-      </G>
-    )
+    return pointsPerWood.map((item: number, index: number) => {
+      const yAxis = ((containeHeigth / maxY) * Math.abs(item)).toFixed(0)
+      const xAxis = 366 / pointsPerWood.length
+      const y2 = containeHeigth - (containeHeigth / maxY) * Math.abs(pointsPerWood[index + 1])
+
+      const x2 = xAxis * (index + 1) + 1
+
+      return (
+        <G key={`chart${index}`}>
+          <Circle
+            r={5}
+            y={containeHeigth - Number(yAxis) - 20}
+            x={xAxis * index + 1}
+            fill={+yAxis > zeroMarker ? colors.palette.points : "white"}
+          />
+          <Line
+            y1={containeHeigth - Number(yAxis) - 20}
+            y2={y2 - 20}
+            x1={xAxis * index + 1}
+            x2={x2}
+            stroke={"white"}
+            strokeWidth={"2"}
+          />
+        </G>
+      )
+    })
+
+    // return (
+    //   <G key={"chart"}>
+    //     <Circle r={5} y={50} x={60} fill={colors.palette.points} />
+    //     <Line x1={60} x2={110} y1={50} y2={170} stroke={"white"} strokeWidth={"2"} />
+    //     <Circle r={5} y={170} x={110} fill={"white"} />
+    //     <Circle r={5} y={180} x={130} fill={"white"} />
+    //     <Line x1={110} x2={130} y1={170} y2={180} stroke={"white"} strokeWidth={"2"} />
+    //     <Circle r={5} y={80} x={180} fill={colors.palette.points} />
+    //     <Line x1={130} x2={180} y1={180} y2={80} stroke={"white"} strokeWidth={"2"} />
+    //     <Circle r={5} y={70} x={200} fill={colors.palette.points} />
+    //     <Line x1={180} x2={200} y1={80} y2={70} stroke={"white"} strokeWidth={"2"} />
+    //     <Circle r={5} y={100} x={230} fill={colors.palette.points} />
+    //     <Line x1={200} x2={230} y1={70} y2={100} stroke={"white"} strokeWidth={"2"} />
+    //     <Circle r={5} y={160} x={260} fill={"white"} />
+    //     <Line x1={230} x2={260} y1={100} y2={160} stroke={"white"} strokeWidth={"2"} />
+    //     <Circle r={5} y={70} x={320} fill={colors.palette.points} />
+    //     <Line x1={260} x2={320} y1={160} y2={70} stroke={"white"} strokeWidth={"2"} />
+    //   </G>
+    // )
   }
 
   return (
     <>
       <Text style={$title}>Points per Wod</Text>
       <View style={$lineChartContainer}>
-        <Svg height="100%" width={"6%"}>
+        <Svg height="255" width={"8%"}>
           {renderMarker()}
         </Svg>
-        <Svg height={"100%"} width={"94%"} style={$svgContainer}>
+        <Svg height={"100%"} width={"92%"} style={$svgContainer}>
           {renderXaxis()}
           {renderHorizontalLine()}
 
