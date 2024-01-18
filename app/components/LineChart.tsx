@@ -5,7 +5,7 @@ import { View, Text, ViewStyle, TextStyle } from "react-native"
 
 import { Circle, G, Line, Svg, Text as SvgText } from "react-native-svg"
 
-export const LineChartComponent: any = () => {
+export const LineChartComponent: React.FC = ({ pointsPerWood = [] }: any) => {
   const containeHeigth = 255
 
   const markerData = [
@@ -33,8 +33,6 @@ export const LineChartComponent: any = () => {
   const renderHorizontalLine = () => {
     return markerData.map((_, index) => {
       const x1 = (containeHeigth / markerData.length) * index
-      console.log(index)
-      console.log()
       return (
         <G key={`marker ${index}`}>
           {index !== 0 ? (
@@ -94,7 +92,7 @@ export const LineChartComponent: any = () => {
     <>
       <Text style={$title}>Points per Wod</Text>
       <View style={$lineChartContainer}>
-        <Svg height={"100%"} width={"6%"}>
+        <Svg height="100%" width={"6%"}>
           {renderMarker()}
         </Svg>
         <Svg height={"100%"} width={"94%"} style={$svgContainer}>

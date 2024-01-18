@@ -7,6 +7,7 @@ import { colors, spacing } from "../theme"
 import { LineChartComponent } from "app/components/LineChart"
 import { Button, Card } from "app/components"
 import { Input } from "app/components/Input"
+import { Api } from "app/services/api"
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
@@ -21,22 +22,20 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     setPoints(pointsInput)
   }
 
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<never | []>([])
+
   // get data
   useEffect(() => {
+    const rawData = new Api()
+
     const fetchData = async () => {
       try {
-        const apiUrl = "https://awqgdt2ss8.execute-api.us-east-1.amazonaws.com/Prod/history"
+        const res = await rawData.getData()
 
-        const response = await fetch(apiUrl)
-
-        if (!response.ok) {
+        if (res.kind !== "ok") {
           throw new Error("Network response was not ok")
         }
-
-        const result = await response.json()
-
-        setData(result)
+        setData(res.rawData)
       } catch (error) {
         console.error("Error fetching data:", error)
       }
@@ -50,9 +49,10 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
       <ScrollView style={$scroll}>
         <View style={$container}>
           {/* LineChart */}
-          <LineChartComponent />
+          {data ? <LineChartComponent pointsPerWood={data} /> : null}
+
           {/* Card */}
-          <Card title={title} points={points} data={data} />
+          {data ? <Card title={title} points={points} data={data} /> : null}
           {/* Inputs */}
           <View style={$footerInput}>
             <Input

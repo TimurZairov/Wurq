@@ -13,16 +13,17 @@ interface ICard {
 export const Card = ({ title, points, data }: ICard) => {
   const [formatDate, setFormatDate] = useState("")
   const [exercises, setExercises] = useState("")
+
+  console.log(data)
   // transform date
   useEffect(() => {
-    if (data) {
-      const inputDate = data.history[0].date_time
+    if (data && data?.history) {
+      const inputDate = data?.history[0]?.date_time
       const parsedDate = new Date(inputDate)
 
       const month = String(parsedDate.getMonth() + 1).padStart(2, "0")
       const day = String(parsedDate.getDate()).padStart(2, "0")
       const year = parsedDate.getFullYear()
-
       const formattedDate = `${month}/${day}/${year}`
       setFormatDate(formattedDate)
       setExercises(data.history[0].exercises)
@@ -35,7 +36,7 @@ export const Card = ({ title, points, data }: ICard) => {
         {/* Header Card */}
         <View style={$header}>
           <View>
-            {data && <Text style={$date}>{formatDate}</Text>}
+            <Text style={$date}>{formatDate}</Text>
 
             <Text style={$subTitle}>{title}</Text>
           </View>
